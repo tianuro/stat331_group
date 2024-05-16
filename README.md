@@ -1,2 +1,2 @@
 # stat331_group
-Members: Visruth,
+Members: Visruth, Eric
