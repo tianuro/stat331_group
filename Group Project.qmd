@@ -1,0 +1,42 @@
+---
+title: "Group Project"
+author: "Eric, Visruth, Sebastian, Ryan"
+format: 
+  html:
+    embed-resources: true
+    code-tools: true
+    toc: true
+    number-sections: true
+editor: source
+execute: 
+  error: true
+  echo: true
+  message: false
+  warning: false
+---
+
+# Analysis of Income and Market Value
+
+We're looking at the relationship between income and market value of listed companies.
+
+## 1 Data Cleaning
+
+```{r setup}
+library(tidyverse)
+market <- read_csv("market_value_of_listed_companies_percent_of_gdp.csv")
+income <- read_csv("mincpcap_cppp.csv")
+```
+
+**For Eric: The two things in Gapminder I used are "Daily Income" & "Market Value of Listed Companies (% of GDP)"**
+
+```{r}
+market <- market |>
+  pivot_longer(cols = -country, names_to = "year", values_to = "market_value")
+
+income <- income |>
+  pivot_longer(cols = -country, names_to = "year", values_to = "income")
+
+data <- market |>
+  inner_join(income, by = c("country", "year")) |>
+  drop_na() # removing years which don't have both market value and income data
+```
