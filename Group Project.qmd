@@ -20,24 +20,27 @@ We're looking at the relationship between income and market value of listed comp
 
 # Data Cleaning
 
-Datasets
+## Dataset A:
 market_value_of_listed_companies_percent_of_gdp.csv
 
-Description: This dataset contains information on the market value of listed companies as a percentage of GDP for various countries over a range of years.
+### Description:
+This dataset contains information on the market value of listed companies as a percentage of GDP for various countries over a range of years.
 
-Variables:
-country: Name of the country.
-year: Year of the data point.
-market_value: Market value of listed companies as a percentage of GDP.
+### Variables:
+**country:** Name of the country.
+**year:** Year of the data point.
+**market_value:** Market value of listed companies as a percentage of GDP.
 
+## Dataset B:
 mincpcap_cppp.csv
 
-Description: This dataset includes data on the mean income per capita (PPP) for various countries over a range of years.
+### Description:
+This dataset includes data on the mean income per capita (PPP) for various countries over a range of years.
 
-Variables:
-country: Name of the country.
-year: Year of the data point.
-income: Mean income per capita (PPP).
+### Variables:
+**country:** Name of the country.
+**year:** Year of the data point.
+**income:** Mean income per capita (PPP).
 
 Combined Dataset
 Description: The merged dataset includes both the market value of listed companies as a percentage of GDP and the mean income per capita (PPP) for each country-year combination.
@@ -99,16 +102,14 @@ data <- market |>
   inner_join(income, by = c("country", "year")) |>
   drop_na() # removing years which don't have both market value and income data
 ```
-<<<<<<< Updated upstream
 
 By completing these steps, we were able to create a clean dataset for data analysis and hypothesis testing. With accurate and complete data, we can improve the reliability of our findings.
-=======
-<<<<<<< HEAD
+
 # Linear Regression
 ## Data Visualization
 ```{r, df with mean values of market and income per yr}
 data_means <- data |>
-  group_by(year) |>
+  group_by(year) |> # grouping by yr
   summarize(
     mean_market_value = mean(market_value),
     sem_market_value = sd(market_value) / sqrt(n()),
@@ -138,5 +139,3 @@ $\text{Market Value (% of GDP)} = \hat{\beta}_0 + \hat{\beta}_1 \times \text{Dai
 =======
 
 By completing these steps, we were able to create a clean dataset for data analysis and hypothesis testing. With accurate and complete data, we can improve the reliability of our findings.
->>>>>>> 5625ead1968df4defc320d6b3c701455484d6207
->>>>>>> Stashed changes
