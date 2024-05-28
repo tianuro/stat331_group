@@ -21,13 +21,50 @@ We're looking at the relationship between income and market value of listed comp
 
 ## 1 Data Cleaning
 
+Datasets
+market_value_of_listed_companies_percent_of_gdp.csv
+
+Description: This dataset contains information on the market value of listed companies as a percentage of GDP for various countries over a range of years.
+
+Variables:
+country: Name of the country.
+year: Year of the data point.
+market_value: Market value of listed companies as a percentage of GDP.
+
+mincpcap_cppp.csv
+
+Description: This dataset includes data on the mean income per capita (PPP) for various countries over a range of years.
+
+Variables:
+country: Name of the country.
+year: Year of the data point.
+income: Mean income per capita (PPP).
+
+Combined Dataset
+Description: The merged dataset includes both the market value of listed companies as a percentage of GDP and the mean income per capita (PPP) for each country-year combination.
+
+Variables:
+country: Name of the country.
+year: Year of the data point.
+market_value: Market value of listed companies as a percentage of GDP.
+income: Mean income per capita (PPP).
+
+Hypothesized Relationship Between the Variables
+We hypothesize that there is a positive relationship between mean income per capita (PPP) and the market value of listed companies as a percentage of GDP. Higher income per capita might indicate a wealthier population and stronger economic performance, which could lead to higher valuations of publicly listed companies. Thus, we expect to see that as the income per capita increases, the market value of listed companies as a percentage of GDP also increases.
+
+Loading Data:
+
+The two datasets were loaded into R using the read_csv function from the tidyverse package.
+
 ```{r setup}
 library(tidyverse)
 market <- read_csv("market_value_of_listed_companies_percent_of_gdp.csv")
 income <- read_csv("mincpcap_cppp.csv")
 ```
 
-**For Eric: The two things in Gapminder I used are "Daily Income" & "Market Value of Listed Companies (% of GDP)"**
+Reshaping / Merging Data:
+
+Both datasets were reshaped from wide format to long format using the pivot_longer function. This was necessary to facilitate the merging of the datasets and subsequent analysis. The two datasets were merged on the country and year columns using the inner_join function. This ensures that only country-year combinations present in both datasets are included in the final dataset.
 
 ```{r}
 market <- market |>
@@ -40,3 +77,5 @@ data <- market |>
   inner_join(income, by = c("country", "year")) |>
   drop_na() # removing years which don't have both market value and income data
 ```
+
+By following these steps, we prepared a clean dataset ready for exploratory data analysis and hypothesis testing. This process ensures that our analysis is based on accurate and complete data, improving the reliability of our findings.
