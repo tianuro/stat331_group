@@ -43,12 +43,6 @@ income: Mean income per capita (PPP).
 Combined Dataset
 Description: The merged dataset includes both the market value of listed companies as a percentage of GDP and the mean income per capita (PPP) for each country-year combination.
 
-Variables:
-country: Name of the country.
-year: Year of the data point.
-market_value: Market value of listed companies as a percentage of GDP.
-income: Mean income per capita (PPP).
-
 Hypothesized Relationship Between the Variables
 We hypothesize that there is a positive relationship between mean income per capita (PPP) and the market value of listed companies as a percentage of GDP. Higher income per capita might indicate a wealthier population and stronger economic performance, which could lead to higher valuations of publicly listed companies. Thus, we expect to see that as the income per capita increases, the market value of listed companies as a percentage of GDP also increases.
 
