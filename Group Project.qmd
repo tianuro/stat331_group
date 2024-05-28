@@ -72,4 +72,4 @@ data <- market |>
   drop_na() # removing years which don't have both market value and income data
 ```
 
-By following these steps, we prepared a clean dataset ready for exploratory data analysis and hypothesis testing. This process ensures that our analysis is based on accurate and complete data, improving the reliability of our findings.
+By completing these steps, we were able to create a clean dataset for data analysis and hypothesis testing. With accurate and complete data, we can improve the reliability of our findings.
