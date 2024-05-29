@@ -119,6 +119,13 @@ data_means <- data |>
 )
 ```
 
+Notes: 
+- Describe what the explanatory variable(independent) and response variable(dependent) is (rewrite the first section to reflect this)
+
+- First visualization will be a scatterplot with geom_smooth. Talk about the relationship (W9 in-class slides)
+
+- 
+
 ```{r, visuals}
 library(ggplot2)
 
