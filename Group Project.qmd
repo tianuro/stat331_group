@@ -137,7 +137,7 @@ data |>
   labs(title = "Scatterplot of Income and Market Value",
        y = "Market Value",
        x = "Income") +
-  transition_states(year) +
+  transition_time(year) +
   labs(subtitle = "Year: {frame_time}")
 ```
 
@@ -145,15 +145,28 @@ data |>
 ## Linear Regression Model
 ```{r, df with mean values of market and income per yr}
 data_means <- data |>
-  group_by(country) |> # grouping by yr
+  group_by(country) |> # grouping by country
   summarize(
     mean_market_value = mean(market_value),
     sem_market_value = sd(market_value) / sqrt(n()),
     mean_income = mean(income),
     sem_income = sd(income)/sqrt(n()),
-    .groups = 'drop'
-)
+    .groups = 'drop')
 ```
+
+```{r}
+data_means |>
+  ggplot(aes(x = mean_income,
+             y = mean_market_value)) +
+  geom_jitter() +
+  geom_smooth(method = "lm") +
+  theme_minimal() +
+  labs(title = "Scatterplot of Mean Country Income and Mean Country Market Value",
+       subtitle = "Market Value",
+       y = "",
+       x = "Income")
+```
+
 
 ```{r, linear regression model}
 mv_lm <- lm(mean_market_value ~ mean_income, data = data_means)
@@ -161,6 +174,9 @@ broom::tidy(mv_lm)
 ```
 
 $\text{Market Value (% of GDP)} = \hat{\beta}_0 + \hat{\beta}_1 \times \text{Daily Income per Capita} + \epsilon$
+
+$\text{Market Value (% of GDP)} = 22.25 + 1.025 \times \text{Daily Income per Capita} + \epsilon$
+
 
 ## Model Fit
 
