@@ -83,6 +83,10 @@ The two datasets were loaded into R using the read_csv function from the tidyver
 
 ```{r setup}
 library(tidyverse)
+library(broom)
+library(gganimate)
+library(gifski)
+library(png)
 market <- read_csv("market_value_of_listed_companies_percent_of_gdp.csv")
 income <- read_csv("mincpcap_cppp.csv")
 ```
@@ -107,9 +111,41 @@ By completing these steps, we were able to create a clean dataset for data analy
 
 # Linear Regression
 ## Data Visualization
+
+### 2.1.1 Visualize the relatioship between the quantitative variables
+```{r}
+data |>
+  ggplot(aes(x = income,
+             y = market_value)) +
+  geom_jitter() +
+  geom_smooth(method = "lm") + 
+  theme_classic() +
+  labs(title = "Scatterplot of Income and Market Value",
+       y = "",
+       subtitle = "Market Value",
+       x = "Income")
+```
+
+### 2.1.2 Visualize the relatioship between the quantitative variables
+```{r}
+data |>
+  mutate(year = as.numeric(year)) |>
+  ggplot(aes(x = income,
+             y = market_value)) +
+  geom_jitter() +
+  theme_classic() +
+  labs(title = "Scatterplot of Income and Market Value",
+       y = "Market Value",
+       x = "Income") +
+  transition_states(year) +
+  labs(subtitle = "Year: {frame_time}")
+```
+
+
+## Linear Regression Model
 ```{r, df with mean values of market and income per yr}
 data_means <- data |>
-  group_by(year) |> # grouping by yr
+  group_by(country) |> # grouping by yr
   summarize(
     mean_market_value = mean(market_value),
     sem_market_value = sd(market_value) / sqrt(n()),
@@ -119,23 +155,9 @@ data_means <- data |>
 )
 ```
 
-Notes: 
-- Describe what the explanatory variable(independent) and response variable(dependent) is (rewrite the first section to reflect this)
-
-- First visualization will be a scatterplot with geom_smooth. Talk about the relationship (W9 in-class slides)
-
-- 
-
-```{r, visuals}
-library(ggplot2)
-
-```
-## Linear Regression Model
 ```{r, linear regression model}
-model <- lm(mean_market_value ~ mean_income, data = data_means)
-
-summary(model)
-
+mv_lm <- lm(mean_market_value ~ mean_income, data = data_means)
+broom::tidy(mv_lm)
 ```
 
 $\text{Market Value (% of GDP)} = \hat{\beta}_0 + \hat{\beta}_1 \times \text{Daily Income per Capita} + \epsilon$
