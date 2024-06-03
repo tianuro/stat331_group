@@ -205,3 +205,35 @@ $$
 $$
 
 ## Model Fit
+```{r}
+mv_lm_augmented <- augment(mv_lm)
+
+# Calculate Variances
+response_var <- var(mv_lm_augmented$.fitted +
+                      mv_lm_augmented$.resid)
+
+fitted_var <- var(mv_lm_augmented$.fitted) 
+
+residual_var <- var(mv_lm_augmented$.resid) 
+
+# Create a DF for the Table
+variance_table <- data.frame(
+  Source = c("Response Values",
+             "Fitted Values",
+             "Residuals"),
+  Variance = c(response_var,
+               fitted_var,
+               residual_var)
+)
+
+# Format with kableExtra
+kableExtra::kable(
+  variance_table, 
+  col.names = c("Source of Variation",
+                "Variance"),
+                  digits = 3,
+                  caption = "Table of Variances from the Linear Regression Model",
+                  booktabs = TRUE) |> 
+  kable_styling(latex_options = "striped", full_width = FALSE)
+```
+
