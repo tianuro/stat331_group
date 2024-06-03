@@ -236,4 +236,11 @@ kableExtra::kable(
                   booktabs = TRUE) |> 
   kable_styling(latex_options = "striped", full_width = FALSE)
 ```
+```{r, r-squared}
+r_sq <- fitted_var / response_var
 
+value_r_sq <- paste("R-squared:", round(r_sq,3))
+
+value_r_sq
+```
+The R-squared value suggests that only approximately 13% of the variation in market value is explained by income. This implies that other factors not included in our model play a significant role in determining market value.
