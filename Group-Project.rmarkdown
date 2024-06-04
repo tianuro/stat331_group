@@ -1,0 +1,262 @@
+---
+title: "Analysis of Income and Market Value"
+author: "Eric, Visruth, Sebastian, Ryan"
+format: 
+  html:
+    embed-resources: true
+    code-tools: true
+    toc: true
+    number-sections: true
+    code-fold: true
+editor: source
+execute: 
+  error: true
+  echo: true
+  message: false
+  warning: false
+---
+
+
+We're looking at the relationship between income and market value of listed companies.
+
+# Data Cleaning
+
+## Dataset A:
+
+market_value_of_listed_companies_percent_of_gdp.csv
+
+### Description:
+
+This dataset contains information on the market value of listed companies as a percentage of GDP for various countries over a range of years.
+
+### Variables:
+
+**country:** Name of the country. **year:** Year of the data point. **market_value:** Market value of listed companies as a percentage of GDP.
+
+## Dataset B:
+
+mincpcap_cppp.csv
+
+### Description:
+
+This dataset includes data on the mean income per capita (PPP) for various countries over a range of years.
+
+### Variables:
+
+**country:** Name of the country. **year:** Year of the data point. **income:** Mean income per capita (PPP).
+
+Combined Dataset Description: The merged dataset includes both the market value of listed companies as a percentage of GDP and the mean income per capita (PPP) for each country-year combination.
+
+Hypothesized Relationship Between the Variables We hypothesize that there is a positive relationship between mean income per capita (PPP) and the market value of listed companies as a percentage of GDP. Higher income per capita might indicate a wealthier population and stronger economic performance, which could lead to higher valuations of publicly listed companies. Thus, we expect to see that as the income per capita increases, the market value of listed companies as a percentage of GDP also increases.
+
+Loading Data:
+
+The two datasets were loaded into R using the read_csv function from the tidyverse package.
+
+Datasets market_value_of_listed_companies_percent_of_gdp.csv
+
+Description: This dataset contains information on the market value of listed companies as a percentage of GDP for various countries over a range of years.
+
+Variables: country: Name of the country. year: Year of the data point. market_value: Market value of listed companies as a percentage of GDP.
+
+mincpcap_cppp.csv
+
+Description: This dataset includes data on the mean income per capita (PPP) for various countries over a range of years.
+
+Variables: country: Name of the country. year: Year of the data point. income: Mean income per capita (PPP).
+
+Combined Dataset Description: The merged dataset includes both the market value of listed companies as a percentage of GDP and the mean income per capita (PPP) for each country-year combination.
+
+Hypothesized Relationship Between the Variables We hypothesize that there is a positive relationship between mean income per capita (PPP) and the market value of listed companies as a percentage of GDP. Higher income per capita might indicate a wealthier population and stronger economic performance, which could lead to higher valuations of publicly listed companies. Thus, we expect to see that as the income per capita increases, the market value of listed companies as a percentage of GDP also increases.
+
+Loading Data:
+
+The two datasets were loaded into R using the read_csv function from the tidyverse package.
+
+
+```{r setup}
+library(tidyverse)
+library(broom)
+library(gganimate)
+library(gifski)
+library(knitr)
+library(kableExtra)
+library(png)
+market <- read_csv("market_value_of_listed_companies_percent_of_gdp.csv")
+income <- read_csv("mincpcap_cppp.csv")
+```
+
+
+Reshaping / Merging Data:
+
+Both datasets were reshaped from wide format to long format using the pivot_longer function. This was necessary to facilitate the merging of the datasets and subsequent analysis. The two datasets were merged on the country and year columns using the inner_join function. This ensures that only country-year combinations present in both datasets are included in the final dataset.
+
+
+```{r}
+market <- market |>
+  pivot_longer(cols = -country, names_to = "year", values_to = "market_value")
+
+income <- income |>
+  pivot_longer(cols = -country, names_to = "year", values_to = "income") 
+
+data <- market |>
+  inner_join(income, by = c("country", "year")) |>
+  drop_na() # removing years which don't have both market value and income data
+```
+
+
+By completing these steps, we were able to create a clean dataset for data analysis and hypothesis testing. With accurate and complete data, we can improve the reliability of our findings.
+
+# Linear Regression
+
+## Data Visualization
+
+### 2.1.1 Visualize the relationship between the quantitative variables
+
+In order to understand the relationship between income and the market value (% of GDP), we will start by graphing a scatterplot of the two variables.
+
+
+```{r}
+data |>
+  ggplot(aes(x = income,
+             y = market_value)) +
+  geom_jitter() +
+  geom_smooth(method = "lm") + 
+  theme_classic() +
+  labs(title = "Scatterplot of Income and Market Value",
+       y = "",
+       subtitle = "Market Value",
+       x = "Income")
+```
+
+
+The scatterplot shows that the majority of the data points are concentrated below the market value of 500, indicating that most observed market values are relatively low. There are a few data points with significantly higher market values, forming a sparse distribution above 500, which are identified as outliers. The scatterplot includes a linear regression line with a positive slope, suggesting a slight positive correlation between Income and Market Value. As income increases, market value tends to increase linearly, though the effect is small.
+
+### 2.1.2 Visualize the relationship between the quantitative variables
+
+To further examine how these variables have evolved over time, we created an animated plot which shows how the relationship between income and the market value (% of GDP) of each country have changed each year.
+
+
+```{r}
+data |>
+  mutate(year = as.numeric(year)) |>
+  ggplot(aes(x = income,
+             y = market_value,
+             color = country)) +
+  geom_jitter() +
+  theme_classic() +
+  labs(title = "Scatterplot of Income and Market Value",
+       y = "Market Value",
+       x = "Income") +
+  theme(legend.position = "none") +
+  transition_time(year) +
+  labs(subtitle = "Year: {frame_time}")
+```
+
+
+The animated plot significantly enhances the understanding of the linear relationship between the two variables. As the animation progresses, it becomes evident that as the income of countries increases over the years, there is a general trend of increasing market value (measured as a \$ of GDP) for public companies. Furthermore, the color of each data point is mapped to specific countries, making it easier to track and follow the trajectories of individual countries. This is particularly useful in identifying patterns and deviations from the overall trend. For instance, the outlier points identified in the initial static scatterplot are now shown to originate from the same country. This revelation provides context to the outliers, demonstrating that they are not indicative of the general relationship observed in most other countries.
+
+## Linear Regression Model
+
+In this section, we continue our analysis of the relationship between income and the market value (% of GDP) by employing a linear regression model. However, before we can do this, we first must start by condensing our data to be more accurately represented by the regression model. We do this by finding the average income and market value of each country. Below is a scatterplot of the summarized data.
+
+
+```{r}
+data_means <- data |>
+  group_by(country) |> # grouping by country
+  summarize(
+    mean_market_value = mean(market_value),
+    sem_market_value = sd(market_value) / sqrt(n()),
+    mean_income = mean(income),
+    sem_income = sd(income)/sqrt(n()),
+    .groups = 'drop')
+```
+
+```{r}
+data_means |>
+  ggplot(aes(x = mean_income,
+             y = mean_market_value)) +
+  geom_jitter() +
+  geom_smooth(method = "lm") +
+  theme_minimal() +
+  labs(title = "Scatterplot of Mean Country Income and Mean Country Market Value",
+       subtitle = "Market Value",
+       y = "",
+       x = "Income")
+```
+
+
+Now that the data has been summarized, we move on to fitting the linear model to our data. The table below shows the relationship between the two variables and will be used to construct the estimated regression model.
+
+
+```{r}
+mv_lm <- lm(mean_market_value ~ mean_income, data = data_means)
+mv_lm_summary <- broom::tidy(mv_lm)
+
+knitr::kable(mv_lm_summary, 
+             col.names = gsub("[.]", 
+                              " ", 
+                              c("Term", "Coefficient Estimate", "Standard Error", "T-Statistic", "P-Value")),
+             align = "ccccc",
+             caption = "Summary of Linear Regression Model Coefficients")
+
+```
+
+
+In general, an estimated regression model can be represented as:
+
+$$
+\text{Market Value (% of GDP)} = \hat{\beta}_0 + \hat{\beta}_1 \times \text{Daily Income per Capita} + \epsilon  
+$$ 
+
+
+Using the estimated coefficent values from the regression model, we can fill in the value of $\hat{\beta}_0$, the y-intercept, and the value of $\hat{\beta}_1$, the scaler which defines the relationship between the explainatory (income) and response variable (market value as a percent of GDP). The resulting equation is defined below:
+
+
+$$
+\text{Market Value (% of GDP)} = 22.25 + 1.025 \times \text{Daily Income per Capita} + \epsilon
+$$
+
+## Model Fit
+
+```{r}
+mv_lm_augmented <- augment(mv_lm)
+
+# Calculate Variances
+response_var <- var(mv_lm_augmented$.fitted +
+                      mv_lm_augmented$.resid)
+
+fitted_var <- var(mv_lm_augmented$.fitted) 
+
+residual_var <- var(mv_lm_augmented$.resid) 
+
+# Create a DF for the Table
+variance_table <- data.frame(
+  Source = c("Response Values",
+             "Fitted Values",
+             "Residuals"),
+  Variance = c(response_var,
+               fitted_var,
+               residual_var)
+)
+
+# Format with kableExtra
+kableExtra::kable(
+  variance_table, 
+  col.names = c("Source of Variation",
+                "Variance"),
+                  digits = 3,
+                  caption = "Table of Variances from the Linear Regression Model",
+                  booktabs = TRUE) |> 
+  kable_styling(latex_options = "striped", full_width = FALSE)
+```
+
+```{r, r-squared}
+r_sq <- fitted_var / response_var
+
+value_r_sq <- paste("R-squared:", round(r_sq,3))
+
+value_r_sq
+```
+
+The R-squared value suggests that only approximately 13% of the variation in market value is explained by income. This implies that other factors not included in our model play a significant role in determining market value.
