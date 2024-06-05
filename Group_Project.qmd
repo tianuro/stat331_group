@@ -203,6 +203,11 @@ Using the estimated coefficent values from the regression model, we can fill in 
 $$
 \text{Market Value (% of GDP)} = 22.25 + 1.025 \times \text{Daily Income per Capita} + \epsilon
 $$
+### Interpretation of the coefficients:
+
+This intercept (22.25) suggests that even with zero mean income per capita, the market value of listed companies would be estimated to be 22.25% of GDP. This interpretation should be taken with caution as it represents an extrapolation beyond the observed data.
+
+The slope (1.025) indicates that for every $1,000 increase in mean income per capita, the market value of listed companies is estimated to increase by 1.025% of GDP, on average. This suggests a positive association between income and market value.
 
 ## Model Fit
 ```{r}
@@ -236,6 +241,7 @@ kableExtra::kable(
                   booktabs = TRUE) |> 
   kable_styling(latex_options = "striped", full_width = FALSE)
 ```
+The variance table reveals that the fitted values from our model account for only 13% (450.531 / 3466.107) of the total variation in market values. This indicates that the majority of the fluctuation in market value is due to factors other than mean income per capita.  While a statistically significant positive relationship exists, this model alone has limited ability to predict market values based solely on income.
 ```{r, r-squared}
 r_sq <- fitted_var / response_var
 
