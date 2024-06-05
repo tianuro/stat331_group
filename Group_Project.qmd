@@ -131,7 +131,7 @@ To further examine how these variables have evolved over time, we created an ani
 
 ```{r}
 data |>
-  mutate(year = as.numeric(year)) |>
+  mutate(year = as.integer(year)) |>
   ggplot(aes(x = income,
              y = market_value,
              color = country)) +
@@ -140,16 +140,20 @@ data |>
   labs(title = "Scatterplot of Income and Market Value",
        y = "Market Value",
        x = "Income") +
-  theme(legend.position = "none") +
+  theme(legend.position = "bottom") +
   transition_time(year) +
   labs(subtitle = "Year: {frame_time}")
 ```
 
 The animated plot significantly enhances the understanding of the linear relationship between the two variables. As the animation progresses, it becomes evident that as the income of countries increases over the years, there is a general trend of increasing market value (measured as a \$ of GDP) for public companies. Furthermore, the color of each data point is mapped to specific countries, making it easier to track and follow the trajectories of individual countries. This is particularly useful in identifying patterns and deviations from the overall trend. For instance, the outlier points identified in the initial static scatterplot are now shown to originate from the same country. This revelation provides context to the outliers, demonstrating that they are not indicative of the general relationship observed in most other countries.
 
-## Linear Regression Model
+## Linear Regression Model (LRM)
+In this section, we continue our analysis of the relationship between income and the market value (% of GDP) by employing a linear regression model.
 
-In this section, we continue our analysis of the relationship between income and the market value (% of GDP) by employing a linear regression model. However, before we can do this, we first must start by condensing our data to be more accurately represented by the regression model. We do this by finding the average income and market value of each country. Below is a scatterplot of the summarized data.
+### What's an LRM?
+Linear regression is a statistical technique used to model the relationship between two variables: a dependent variable (in this case, the mean market value of listed companies as a percentage of GDP) and one or more independent variables (here, the mean income per capita). It assumes a linear relationship, meaning that a change in the independent variable is associated with a proportional change in the dependent variable.
+
+However, before we can do this, we first must start by condensing our data to be more accurately represented by the regression model. We do this by finding the average income and market value of each country. Below is a scatterplot of the summarized data.
 
 ```{r}
 data_means <- data |>
