@@ -72,7 +72,7 @@ Loading Data:
 
 The two datasets were loaded into R using the read_csv function from the tidyverse package.
 
-```{r setup}
+```{r}
 library(tidyverse)
 library(broom)
 library(gganimate)
@@ -139,8 +139,9 @@ data |>
   theme_classic() +
   labs(title = "Scatterplot of Income and Market Value",
        y = "Market Value",
-       x = "Income") +
-  theme(legend.position = "bottom") +
+       x = "Income",
+       caption = "(color represents each country, helps to track trajectories of individual countries)") +
+  theme(legend.position = "none") +
   transition_time(year) +
   labs(subtitle = "Year: {frame_time}")
 ```
@@ -185,19 +186,21 @@ Now that the data has been summarized, we move on to fitting the linear model to
 mv_lm <- lm(mean_market_value ~ mean_income, data = data_means)
 mv_lm_summary <- broom::tidy(mv_lm)
 
+
+
 knitr::kable(mv_lm_summary, 
              col.names = gsub("[.]", 
                               " ", 
                               c("Term", "Coefficient Estimate", "Standard Error", "T-Statistic", "P-Value")),
              align = "ccccc",
-             caption = "Summary of Linear Regression Model Coefficients")
-
+             caption = "Summary of Linear Regression Model Coefficients",
+             digits = 3)
 ```
 
 In general, an estimated regression model can be represented as:
 
 $$
-\text{Market Value (% of GDP)} = \hat{\beta}_0 + \hat{\beta}_1 \times \text{Daily Income per Capita} + \epsilon  
+\text{Market Value (\% of GDP)} = \hat{\beta}_0 + \hat{\beta}_1 \times \text{Daily Income per Capita} + \epsilon  
 $$ 
 
 
@@ -205,8 +208,10 @@ Using the estimated coefficent values from the regression model, we can fill in 
 
 
 $$
-\text{Market Value (% of GDP)} = 22.25 + 1.025 \times \text{Daily Income per Capita} + \epsilon
+\text{Market Value (\% of GDP)} = 22.25 + 1.025 \times \text{Daily Income per Capita} + \epsilon
 $$
+The interpretation of this equation is that for any increase in daily income per capita, market value (% of GDP) will increase by 0.025 plus 22.25 percent.
+
 ### Interpretation of the coefficients:
 
 This intercept (22.25) suggests that even with zero mean income per capita, the market value of listed companies would be estimated to be 22.25% of GDP. This interpretation should be taken with caution as it represents an extrapolation beyond the observed data.
@@ -237,7 +242,8 @@ variance_table <- data.frame(
 
 # Format with kableExtra
 kableExtra::kable(
-  variance_table, 
+  variance_table,
+  align = "cc",
   col.names = c("Source of Variation",
                 "Variance"),
                   digits = 3,
