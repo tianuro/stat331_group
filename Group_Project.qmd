@@ -80,6 +80,9 @@ library(gifski)
 library(knitr)
 library(kableExtra)
 library(png)
+
+set.seed(0)
+
 market <- read_csv("market_value_of_listed_companies_percent_of_gdp.csv")
 income <- read_csv("mincpcap_cppp.csv")
 ```
@@ -93,7 +96,7 @@ market <- market |>
   pivot_longer(cols = -country, names_to = "year", values_to = "market_value")
 
 income <- income |>
-  pivot_longer(cols = -country, names_to = "year", values_to = "income") 
+  pivot_longer(cols = -country, names_to = "year", values_to = "income")
 
 data <- market |>
   inner_join(income, by = c("country", "year")) |>
@@ -112,15 +115,19 @@ In order to understand the relationship between income and the market value (% o
 
 ```{r}
 data |>
-  ggplot(aes(x = income,
-             y = market_value)) +
+  ggplot(aes(
+    x = income,
+    y = market_value
+  )) +
   geom_jitter() +
-  geom_smooth(method = "lm") + 
+  geom_smooth(method = "lm") +
   theme_classic() +
-  labs(title = "Scatterplot of Income and Market Value",
-       y = "",
-       subtitle = "Market Value",
-       x = "Income")
+  labs(
+    title = "Scatterplot of Income and Market Value",
+    y = "",
+    subtitle = "Market Value",
+    x = "Income"
+  )
 ```
 
 The scatterplot shows that the majority of the data points are concentrated below the market value of 500, indicating that most observed market values are relatively low. There are a few data points with significantly higher market values, forming a sparse distribution above 500, which are identified as outliers. The scatterplot includes a linear regression line with a positive slope, suggesting a slight positive correlation between Income and Market Value. As income increases, market value tends to increase linearly, though the effect is small.
@@ -132,15 +139,19 @@ To further examine how these variables have evolved over time, we created an ani
 ```{r}
 data |>
   mutate(year = as.integer(year)) |>
-  ggplot(aes(x = income,
-             y = market_value,
-             color = country)) +
+  ggplot(aes(
+    x = income,
+    y = market_value,
+    color = country
+  )) +
   geom_jitter() +
   theme_classic() +
-  labs(title = "Scatterplot of Income and Market Value",
-       y = "Market Value",
-       x = "Income",
-       caption = "(color represents each country, helps to track trajectories of individual countries)") +
+  labs(
+    title = "Scatterplot of Income and Market Value",
+    y = "Market Value",
+    x = "Income",
+    caption = "(color represents each country, helps to track trajectories of individual countries)"
+  ) +
   theme(legend.position = "none") +
   transition_time(year) +
   labs(subtitle = "Year: {frame_time}")
@@ -163,21 +174,26 @@ data_means <- data |>
     mean_market_value = mean(market_value),
     sem_market_value = sd(market_value) / sqrt(n()),
     mean_income = mean(income),
-    sem_income = sd(income)/sqrt(n()),
-    .groups = 'drop')
+    sem_income = sd(income) / sqrt(n()),
+    .groups = "drop"
+  )
 ```
 
 ```{r}
 data_means |>
-  ggplot(aes(x = mean_income,
-             y = mean_market_value)) +
+  ggplot(aes(
+    x = mean_income,
+    y = mean_market_value
+  )) +
   geom_jitter() +
   geom_smooth(method = "lm") +
   theme_minimal() +
-  labs(title = "Scatterplot of Mean Country Income and Mean Country Market Value",
-       subtitle = "Market Value",
-       y = "",
-       x = "Income")
+  labs(
+    title = "Scatterplot of Mean Country Income and Mean Country Market Value",
+    subtitle = "Market Value",
+    y = "",
+    x = "Income"
+  )
 ```
 
 Now that the data has been summarized, we move on to fitting the linear model to our data. The table below shows the relationship between the two variables and will be used to construct the estimated regression model.
@@ -188,13 +204,16 @@ mv_lm_summary <- broom::tidy(mv_lm)
 
 
 
-knitr::kable(mv_lm_summary, 
-             col.names = gsub("[.]", 
-                              " ", 
-                              c("Term", "Coefficient Estimate", "Standard Error", "T-Statistic", "P-Value")),
-             align = "ccccc",
-             caption = "Summary of Linear Regression Model Coefficients",
-             digits = 3)
+knitr::kable(mv_lm_summary,
+  col.names = gsub(
+    "[.]",
+    " ",
+    c("Term", "Coefficient Estimate", "Standard Error", "T-Statistic", "P-Value")
+  ),
+  align = "ccccc",
+  caption = "Summary of Linear Regression Model Coefficients",
+  digits = 3
+)
 ```
 
 In general, an estimated regression model can be represented as:
@@ -224,39 +243,80 @@ mv_lm_augmented <- augment(mv_lm)
 
 # Calculate Variances
 response_var <- var(mv_lm_augmented$.fitted +
-                      mv_lm_augmented$.resid)
+  mv_lm_augmented$.resid)
 
-fitted_var <- var(mv_lm_augmented$.fitted) 
+fitted_var <- var(mv_lm_augmented$.fitted)
 
-residual_var <- var(mv_lm_augmented$.resid) 
+residual_var <- var(mv_lm_augmented$.resid)
 
 # Create a DF for the Table
 variance_table <- data.frame(
-  Source = c("Response Values",
-             "Fitted Values",
-             "Residuals"),
-  Variance = c(response_var,
-               fitted_var,
-               residual_var)
+  Source = c(
+    "Response Values",
+    "Fitted Values",
+    "Residuals"
+  ),
+  Variance = c(
+    response_var,
+    fitted_var,
+    residual_var
+  )
 )
 
 # Format with kableExtra
 kableExtra::kable(
   variance_table,
   align = "cc",
-  col.names = c("Source of Variation",
-                "Variance"),
-                  digits = 3,
-                  caption = "Table of Variances from the Linear Regression Model",
-                  booktabs = TRUE) |> 
+  col.names = c(
+    "Source of Variation",
+    "Variance"
+  ),
+  digits = 3,
+  caption = "Table of Variances from the Linear Regression Model",
+  booktabs = TRUE
+) |>
   kable_styling(latex_options = "striped", full_width = FALSE)
 ```
 The variance table reveals that the fitted values from our model account for only 13% (450.531 / 3466.107) of the total variation in market values. This indicates that the majority of the fluctuation in market value is due to factors other than mean income per capita.  While a statistically significant positive relationship exists, this model alone has limited ability to predict market values based solely on income.
 ```{r, r-squared}
 r_sq <- fitted_var / response_var
 
-value_r_sq <- paste("R-squared:", round(r_sq,3))
+value_r_sq <- paste("R-squared:", round(r_sq, 3))
 
 value_r_sq
 ```
 The R-squared value suggests that only approximately 13% of the variation in market value is explained by income. This implies that other factors not included in our model play a significant role in determining market value.
+
+```{r simulated data}
+#| output: false
+pred <- predict(mv_lm)
+est_sigma <- sigma(mv_lm)
+```
+
+```{r}
+rand_error <- function(x, mean = 0, sd){
+  x + rnorm(length(x), mean = mean, sd = sd)
+}
+
+sim_response <- tibble(sim_mv = rand_error(pred,
+                                            sd = est_sigma))
+```
+
+
+```{r}
+data_means |>
+  bind_cols(sim_response) |>
+  ggplot(aes(
+    x = mean_income,
+    y = sim_mv
+  )) +
+  geom_jitter() +
+  geom_smooth(method = "lm") +
+  theme_minimal() +
+  labs(
+    title = "Scatterplot of Mean Country Income and Mean Country Market Value",
+    subtitle = "Simulated Market Value",
+    y = "",
+    x = "Income"
+  )
+```
