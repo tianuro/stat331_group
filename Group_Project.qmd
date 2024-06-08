@@ -16,61 +16,45 @@ execute:
   warning: false
 ---
 
-We're looking at the relationship between income and market value of listed companies.
+# Analysis of Income and Market Value
 
-# Data Cleaning
+In this project, we analyze the relationship between the daily income of individuals and the market value of listed companies (as a percentage of GDP) across various countries. The data for this analysis comes from two CSV files: `market_value_of_listed_companies_percent_of_gdp.csv` and `mincpcap_cppp.csv`.
 
-## Dataset A:
+## Data and Variable Description
 
-market_value_of_listed_companies_percent_of_gdp.csv
+### Data Sources
 
-### Description:
+1.  **Market Value of Listed Companies (% of GDP)**
 
-This dataset contains information on the market value of listed companies as a percentage of GDP for various countries over a range of years.
+    -   This dataset provides information on the market value of all publicly traded companies in various countries, expressed as a percentage of the country's GDP for multiple years. The market value of listed companies refers to the total value of a company's shares of stock. It is calculated by multiplying the share price by the number of outstanding shares. This value represents the aggregate value of the companies' equity on the stock market.
 
-### Variables:
+    -   **Variables**
 
-**country:** Name of the country. **year:** Year of the data point. **market_value:** Market value of listed companies as a percentage of GDP.
+        -   `country`: The name of the country.
 
-## Dataset B:
+        -   `year`: The year for which the data was recorded.
 
-mincpcap_cppp.csv
+        -   `market_value`: The market value of listed companies as a percentage of GDP.
 
-### Description:
+2.  **Daily Income**
 
-This dataset includes data on the mean income per capita (PPP) for various countries over a range of years.
+    -   This dataset provides the average daily income per capita for various countries over multiple years, adjusted for purchasing power parity (PPP). PPP is an economic theory that compares different countries' currencies through a basket of goods approach. It allows for more accurate comparisons of living standards and economic productivity between countries by accounting for differences in price levels.
 
-### Variables:
+    -   **Variables**
 
-**country:** Name of the country. **year:** Year of the data point. **income:** Mean income per capita (PPP).
+        -   `country`: The name of the country.
 
-Combined Dataset Description: The merged dataset includes both the market value of listed companies as a percentage of GDP and the mean income per capita (PPP) for each country-year combination.
+        -   `year`: The year for which the data is recorded.
 
-Hypothesized Relationship Between the Variables We hypothesize that there is a positive relationship between mean income per capita (PPP) and the market value of listed companies as a percentage of GDP. Higher income per capita might indicate a wealthier population and stronger economic performance, which could lead to higher valuations of publicly listed companies. Thus, we expect to see that as the income per capita increases, the market value of listed companies as a percentage of GDP also increases.
+        -   `income`: The average daily income per capita in constant PPP dollars.
 
-Loading Data:
+### Data Collection Methods
 
-The two datasets were loaded into R using the read_csv function from the tidyverse package.
+The data on the market value of listed companies and daily income per capita is collected by various international financial organizations and statistical agencies. These organizations compile data from national statistical offices, stock exchanges, and other financial institutions. The market value data is derived from stock market data, while the income data is adjusted for PPP to account for differences in cost of living across countries.
 
-Datasets market_value_of_listed_companies_percent_of_gdp.csv
+### Hypothesized Relationship
 
-Description: This dataset contains information on the market value of listed companies as a percentage of GDP for various countries over a range of years.
-
-Variables: country: Name of the country. year: Year of the data point. market_value: Market value of listed companies as a percentage of GDP.
-
-mincpcap_cppp.csv
-
-Description: This dataset includes data on the mean income per capita (PPP) for various countries over a range of years.
-
-Variables: country: Name of the country. year: Year of the data point. income: Mean income per capita (PPP).
-
-Combined Dataset Description: The merged dataset includes both the market value of listed companies as a percentage of GDP and the mean income per capita (PPP) for each country-year combination.
-
-Hypothesized Relationship Between the Variables We hypothesize that there is a positive relationship between mean income per capita (PPP) and the market value of listed companies as a percentage of GDP. Higher income per capita might indicate a wealthier population and stronger economic performance, which could lead to higher valuations of publicly listed companies. Thus, we expect to see that as the income per capita increases, the market value of listed companies as a percentage of GDP also increases.
-
-Loading Data:
-
-The two datasets were loaded into R using the read_csv function from the tidyverse package.
+We hypothesize that there is a positive relationship between a country's average daily income per capita and the market value of its listed companies as a percentage of GDP. This hypothesis is based on the idea that higher individual incomes could correlate with higher levels of investment, corporate profits, and economic activity, leading to greater market value of listed companies.
 
 ```{r}
 library(tidyverse)
@@ -87,9 +71,31 @@ market <- read_csv("market_value_of_listed_companies_percent_of_gdp.csv")
 income <- read_csv("mincpcap_cppp.csv")
 ```
 
-Reshaping / Merging Data:
+## Data Cleaning Process
 
-Both datasets were reshaped from wide format to long format using the pivot_longer function. This was necessary to facilitate the merging of the datasets and subsequent analysis. The two datasets were merged on the country and year columns using the inner_join function. This ensures that only country-year combinations present in both datasets are included in the final dataset.
+### Importing and Reshaping Data
+
+First, we import the data from the two CSV files. The data is initially in a wide format, where each year is represented as a separate column. To facilitate analysis, the data is reshaped into a long format, where each row represents a single country's data for a specific year. This restructuring helps in merging the two datasets and for analysis.
+
+### Merging Datasets
+
+Once the data is reshaped, we merge the two datasets based on the common columns, which are the country names and years.
+
+### Handling Missing Values
+
+Any rows with missing values in either the market value or income columns are removed. This step is crucial as missing data can lead to biased results and affect the validity of the analysis.
+
+### Summary of Cleaned Data
+
+The resulting dataset contains the following columns:
+
+-   `country`: The name of the country.
+
+-   `year`: The year for which the data is recorded.
+
+-   `market_value`: The market value of listed companies as a percentage of GDP.
+
+-   `income`: The average daily income per capita in constant PPP dollars.
 
 ```{r}
 market <- market |>
@@ -103,7 +109,7 @@ data <- market |>
   drop_na() # removing years which don't have both market value and income data
 ```
 
-By completing these steps, we were able to create a clean dataset for data analysis and hypothesis testing. With accurate and complete data, we can improve the reliability of our findings.
+By cleaning and merging the datasets, we have prepared a comprehensive dataset that allows us to explore the relationship between daily income and the market value of listed companies across different countries and years. The next steps involve performing statistical analyses and visualizations to test our hypothesis and uncover insights from the data.
 
 # Linear Regression
 
@@ -160,9 +166,11 @@ data |>
 The animated plot significantly enhances the understanding of the linear relationship between the two variables. As the animation progresses, it becomes evident that as the income of countries increases over the years, there is a general trend of increasing market value (measured as a \$ of GDP) for public companies. Furthermore, the color of each data point is mapped to specific countries, making it easier to track and follow the trajectories of individual countries. This is particularly useful in identifying patterns and deviations from the overall trend. For instance, the outlier points identified in the initial static scatterplot are now shown to originate from the same country. This revelation provides context to the outliers, demonstrating that they are not indicative of the general relationship observed in most other countries.
 
 ## Linear Regression Model (LRM)
+
 In this section, we continue our analysis of the relationship between income and the market value (% of GDP) by employing a linear regression model.
 
 ### What's an LRM?
+
 Linear regression is a statistical technique used to model the relationship between two variables: a dependent variable (in this case, the mean market value of listed companies as a percentage of GDP) and one or more independent variables (here, the mean income per capita). It assumes a linear relationship, meaning that a change in the independent variable is associated with a proportional change in the dependent variable.
 
 However, before we can do this, we first must start by condensing our data to be more accurately represented by the regression model. We do this by finding the average income and market value of each country. Below is a scatterplot of the summarized data.
@@ -220,24 +228,22 @@ In general, an estimated regression model can be represented as:
 
 $$
 \text{Market Value (\% of GDP)} = \hat{\beta}_0 + \hat{\beta}_1 \times \text{Daily Income per Capita} + \epsilon  
-$$ 
-
+$$
 
 Using the estimated coefficent values from the regression model, we can fill in the value of $\hat{\beta}_0$, the y-intercept, and the value of $\hat{\beta}_1$, the scaler which defines the relationship between the explainatory (income) and response variable (market value as a percent of GDP). The resulting equation is defined below:
 
-
 $$
 \text{Market Value (\% of GDP)} = 22.25 + 1.025 \times \text{Daily Income per Capita} + \epsilon
-$$
-The interpretation of this equation is that for any increase in daily income per capita, market value (% of GDP) will increase by 0.025 plus 22.25 percent.
+$$ The interpretation of this equation is that for any increase in daily income per capita, market value (% of GDP) will increase by 0.025 plus 22.25 percent.
 
 ### Interpretation of the coefficients:
 
 This intercept (22.25) suggests that even with zero mean income per capita, the market value of listed companies would be estimated to be 22.25% of GDP. This interpretation should be taken with caution as it represents an extrapolation beyond the observed data.
 
-The slope (1.025) indicates that for every $1,000 increase in mean income per capita, the market value of listed companies is estimated to increase by 1.025% of GDP, on average. This suggests a positive association between income and market value.
+The slope (1.025) indicates that for every \$1,000 increase in mean income per capita, the market value of listed companies is estimated to increase by 1.025% of GDP, on average. This suggests a positive association between income and market value.
 
 ## Model Fit
+
 ```{r}
 mv_lm_augmented <- augment(mv_lm)
 
@@ -277,7 +283,9 @@ kableExtra::kable(
 ) |>
   kable_styling(latex_options = "striped", full_width = FALSE)
 ```
-The variance table reveals that the fitted values from our model account for only 13% (450.531 / 3466.107) of the total variation in market values. This indicates that the majority of the fluctuation in market value is due to factors other than mean income per capita.  While a statistically significant positive relationship exists, this model alone has limited ability to predict market values based solely on income.
+
+The variance table reveals that the fitted values from our model account for only 13% (450.531 / 3466.107) of the total variation in market values. This indicates that the majority of the fluctuation in market value is due to factors other than mean income per capita. While a statistically significant positive relationship exists, this model alone has limited ability to predict market values based solely on income.
+
 ```{r, r-squared}
 r_sq <- fitted_var / response_var
 
@@ -285,7 +293,14 @@ value_r_sq <- paste("R-squared:", round(r_sq, 3))
 
 value_r_sq
 ```
+
 The R-squared value suggests that only approximately 13% of the variation in market value is explained by income. This implies that other factors not included in our model play a significant role in determining market value.
+
+## Simulation
+
+#### Generating Predictions and Simulated Data
+
+First, we used a simple linear regression model to generate predictions for the market value based on income. These predictions were then adjusted with random errors based on the residual standard error from the linear regression model to create simulated data. The resulting scatterplots, both for the observed and simulated data, were analyzed to understand the similarities and differences between them.
 
 ```{r simulated data}
 #| output: false
@@ -301,7 +316,6 @@ rand_error <- function(x, mean = 0, sd){
 sim_response <- tibble(sim_mv = rand_error(pred,
                                             sd = est_sigma))
 ```
-
 
 ```{r}
 data_means |>
@@ -320,3 +334,11 @@ data_means |>
     x = "Income"
   )
 ```
+
+#### Comparing Simulated Data to Observed Data
+
+Both scatterplots show a positive trend line, confirming our hypothesis that higher income correlates with higher market value. In both plots, a significant number of data points are below a market value of 100, indicating that most countries have market values within this range. Additionally, both scatterplots contain outliers. This suggests variability in market values that the model attempts to capture.
+
+The observed data has a more skewed distribution with extreme outliers exceeding 500, while the simulated data points are more evenly spread around the regression line, displaying a more normal distribution. The observed data shows higher variability and greater spread in market values, indicating that factors other than income significantly influence market value. On the other hand, the simulated data shows a more constrained spread, emphasizing the model’s limitations in capturing the variability in market values.
+
+The comparison underscores that while the linear regression model depicts the general positive trend between income and market value, it underestimates the variability observed in the real-world data. The outliers in the observed data suggests that additional factors beyond income play a role in determining the market value of listed companies.
