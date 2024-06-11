@@ -296,8 +296,8 @@ value_r_sq
 
 The R-squared value suggests that only approximately 13% of the variation in market value is explained by income. This implies that other factors not included in our model play a significant role in determining market value.
 
-## Simulation
-
+# Simulation
+## Visualizing Simulations from the Model
 #### Generating Predictions and Simulated Data
 
 First, we used a simple linear regression model to generate predictions for the market value based on income. These predictions were then adjusted with random errors based on the residual standard error from the linear regression model to create simulated data. The resulting scatterplots, both for the observed and simulated data, were analyzed to understand the similarities and differences between them.
@@ -342,3 +342,13 @@ Both scatterplots show a positive trend line, confirming our hypothesis that hig
 The observed data has a more skewed distribution with extreme outliers exceeding 500, while the simulated data points are more evenly spread around the regression line, displaying a more normal distribution. The observed data shows higher variability and greater spread in market values, indicating that factors other than income significantly influence market value. On the other hand, the simulated data shows a more constrained spread, emphasizing the model’s limitations in capturing the variability in market values.
 
 The comparison underscores that while the linear regression model depicts the general positive trend between income and market value, it underestimates the variability observed in the real-world data. The outliers in the observed data suggests that additional factors beyond income play a role in determining the market value of listed companies.
+
+## Generating Multiple Predictive Checks
+[] 1000 simulated datasets based on the model's parameters. Each simulated dataset will have the same number of observations as the original data.
+
+### Comparing Against Regression
+
+### Plotting R-squared Distribution
+Visualize distribution of the R-sq. values.
+*Implications:*
+*Considerations:*
