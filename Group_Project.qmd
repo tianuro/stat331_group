@@ -115,7 +115,7 @@ By cleaning and merging the datasets, we have prepared a comprehensive dataset t
 
 ## Data Visualization
 
-### 2.1.1 Visualize the relationship between the quantitative variables
+### Visualize the relationship between the quantitative variables
 
 In order to understand the relationship between income and the market value (% of GDP), we will start by graphing a scatterplot of the two variables.
 
@@ -138,7 +138,7 @@ data |>
 
 The scatterplot shows that the majority of the data points are concentrated below the market value of 500, indicating that most observed market values are relatively low. There are a few data points with significantly higher market values, forming a sparse distribution above 500, which are identified as outliers. The scatterplot includes a linear regression line with a positive slope, suggesting a slight positive correlation between Income and Market Value. As income increases, market value tends to increase linearly, though the effect is small.
 
-### 2.1.2 Visualize the relationship between the quantitative variables
+### Visualize the relationship between the quantitative variables
 
 To further examine how these variables have evolved over time, we created an animated plot which shows how the relationship between income and the market value (% of GDP) of each country have changed each year.
 
@@ -344,11 +344,75 @@ The observed data has a more skewed distribution with extreme outliers exceeding
 The comparison underscores that while the linear regression model depicts the general positive trend between income and market value, it underestimates the variability observed in the real-world data. The outliers in the observed data suggests that additional factors beyond income play a role in determining the market value of listed companies.
 
 ## Generating Multiple Predictive Checks
-[] 1000 simulated datasets based on the model's parameters. Each simulated dataset will have the same number of observations as the original data.
+The purpose of generating simulated datasets is to provide a benchmark against which we can compare our observed data. By comparing the observed data to the distribution of simulated data, we can assess whether our model's assumptions are reasonable and how well it captures the underlying data generating process.
+```{r, Generating Sim Data}
+n_sims <- 1000
+sim_data <- matrix(NA, nrow = nrow(data_means), ncol = n_sims)
+
+for (i in 1:n_sims) {
+  sim_data[, i] <- rand_error(pred, sd = est_sigma)
+}
+
+sim_data <- as.data.frame(sim_data)
+names(sim_data) <- paste0("sim", 1:n_sims)
+sim_data <- cbind(data_means, sim_data)
+```
+
 
 ### Comparing Against Regression
+To assess how well our linear model captures the true relationship between mean income and market value, we conducted predictive checks. These checks involve generating numerous simulated datasets based on our model's parameters and comparing them to our observed data. Each simulated dataset represents a plausible outcome if our model were a perfect representation of reality.
+```{r}
+# vector to store values
+r_squared_values <- numeric(n_sims)
+for (i in 1:n_sims) {
+  
+  sim_data_temp <- sim_data |> 
+    select(mean_income, starts_with("sim")) |> 
+    rename(simulated_mv = paste0("sim", i)) # Rename 
+  
+  # Join
+  sim_data_temp <- sim_data_temp |> 
+    inner_join(data_means|> select(mean_income, mean_market_value), by = "mean_income")
 
+  # LRM
+  sim_lm <- lm(mean_market_value ~ simulated_mv, data = sim_data_temp)
+  
+  # Store
+  r_squared_values[i] <- summary(sim_lm)$r.squared
+}
+```
+We regressed the observed market values against each of the 1,000 simulated datasets, calculating the R-squared value for each regression. The distribution of these R-squared values reveals the range of model fit we would expect to see if our model were accurate.
 ### Plotting R-squared Distribution
 Visualize distribution of the R-sq. values.
-*Implications:*
-*Considerations:*
+```{r}
+# Create a histogram of the R-squared values
+ggplot(data.frame(R_squared = r_squared_values), 
+       aes(x = R_squared)) +
+  geom_histogram(binwidth = 0.02,
+                 fill = "skyblue",
+                 color = "black",
+                 alpha = 0.7) +
+  
+  labs(title = "Distribution of R-squared Values from Predictive Checks",
+       x = "R-squared",
+       y = "Frequency") +
+  theme_minimal()
+```
+
+**Implications:**
+
++  **Distribution of R-squared:**
+The histogram shows the distribution of R-squared values we would expect to see if our model were a good fit. The observed R-squared from our model on the real data (0.13) falls within the lower range of the simulated R-squared values.
+    
+    
++  **Model Adequacy:**
+This suggests that while our model isn't a terrible fit, it's also not exceptionally good at generating data similar to what was observed. There is a considerable chance that we could observe data that has a better fit (higher R-squared) with the model than our original data. This further reinforces the idea that there are likely other factors influencing market value that our model isn't capturing.
+
+**Considerations:**
+
++   **Assumption of Correct Model:**
+The simulations are based on the assumption that the linear model is the correct model for the data. If the underlying relationship is different (e.g., non-linear), the predictive checks might not be reliable.
+
+
++  **Data Limitations:**
+The quality of the simulations depends on the quality of the original data. If there are measurement errors or outliers in the original data, these will also affect the simulations.
