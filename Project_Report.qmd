@@ -1,0 +1,12 @@
+---
+title: "Written Report"
+format: html
+editor: visual
+embed-resources: true
+code-tools: true
+code-fold: true
+---
+
+The components specified in Sections 1-3 above must be in your final written report. Beyond that, how you would like to structure your report (both content and style) is up to you. Your group must determine the section headers (and any sub-headers) to be included in the final report.
+
+Your analysis should read like a formal article, such as those that appear in popular science journals like [this oneLinks to an external site.](https://www.scientificamerican.com/). That is, it should be *formatted* and *polished* - we shouldn’t be able to see any code unless it is absolutely necessary, plots and tables should have clear labels, and the article should have a clear narrative flow. Your report should be a thoughtful, professional creation that you will be proud to share even after this class is over.
