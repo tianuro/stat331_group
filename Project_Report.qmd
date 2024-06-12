@@ -1,5 +1,5 @@
 ---
-title: "Written Report"
+title: "Unraveling the Link Between Income and Market Value: A Global Perspective"
 format: html
 editor: visual
 embed-resources: true
@@ -7,6 +7,65 @@ code-tools: true
 code-fold: true
 ---
 
-The components specified in Sections 1-3 above must be in your final written report. Beyond that, how you would like to structure your report (both content and style) is up to you. Your group must determine the section headers (and any sub-headers) to be included in the final report.
+# Introduction
 
-Your analysis should read like a formal article, such as those that appear in popular science journals like [this oneLinks to an external site.](https://www.scientificamerican.com/). That is, it should be *formatted* and *polished* - we shouldn’t be able to see any code unless it is absolutely necessary, plots and tables should have clear labels, and the article should have a clear narrative flow. Your report should be a thoughtful, professional creation that you will be proud to share even after this class is over.
+The relationship between a nation's wealth and the performance of its stock market is a subject of ongoing economic inquiry. In this study, we delve into this relationship, specifically investigating the link between average daily income per capita and the market value of listed companies as a percentage of Gross Domestic Product (GDP). Our analysis draws upon a comprehensive dataset spanning various countries and multiple years, allowing us to explore this relationship across diverse economic contexts.
+
+We hypothesize that a positive correlation exists between daily income per capita and the market value of listed companies. This hypothesis stems from the notion that higher individual incomes may fuel increased investment, bolster corporate profits, and stimulate overall economic activity, ultimately contributing to a greater market value for publicly traded companies.
+
+To test this hypothesis, we employ a linear regression model and conduct rigorous predictive checks to assess the model's adequacy. Our approach encompasses data cleaning, exploratory data analysis, model fitting, and validation, ensuring a comprehensive investigation of the proposed relationship.
+
+## Data Sources and Preparation
+
+Our analysis draws upon data from two primary sources:
+
+1.  **Market Value of Listed Companies (% of GDP):** This dataset, compiled by international financial organizations, provides the market value of all publicly traded companies in a given country, expressed as a percentage of its GDP for various years.
+
+2.  **Daily Income:** This dataset, gathered from statistical agencies, reports the average daily income per capita across different countries over multiple years, adjusted for purchasing power parity (PPP) to account for variations in living costs.
+
+We begin by reshaping the data from wide to long format, merging the two datasets based on country and year, and removing any observations with missing values. This ensures a clean and complete dataset for our subsequent analysis.
+
+```{r, setup}
+#| label: setup
+#| message: false
+#| warning: false
+#| echo: false
+
+library(tidyverse)
+library(broom)
+library(gganimate)
+library(gifski)
+library(knitr)
+library(kableExtra)
+library(png)
+
+set.seed(0)
+
+market <- read_csv("market_value_of_listed_companies_percent_of_gdp.csv")
+income <- read_csv("mincpcap_cppp.csv")
+```
+
+```{r}
+#| label: clean-and-merge
+#| message: false
+#| warning: false
+#| echo: false
+
+# Reshape to long format
+market_long <- market |> 
+  pivot_longer(!country, names_to = "year", values_to = "market_value")
+
+income_long <- income |> 
+  pivot_longer(!country, names_to = "year", values_to = "income")
+
+# Convert year column to numeric
+market_long$year <- as.numeric(market_long$year)
+income_long$year <- as.numeric(income_long$year)
+
+# Merge datasets
+data <- inner_join(market_long, income_long, by = c("country", "year"))
+
+# Remove rows with missing values
+data <- data |> 
+  drop_na()
+```
