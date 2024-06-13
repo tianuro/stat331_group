@@ -16,9 +16,11 @@ execute:
   warning: false
 ---
 
-# Analysis of Income and Market Value
+# Introduction
 
-In this project, we analyze the relationship between the daily income of individuals and the market value of listed companies (as a percentage of GDP) across various countries. The data for this analysis comes from two CSV files: `market_value_of_listed_companies_percent_of_gdp.csv` and `mincpcap_cppp.csv`.
+In this project, we analyze the relationship between the daily income of individuals and the market value of listed companies (as a percentage of GDP) across various countries. The data for this analysis comes from two CSV files: 
+`market_value_of_listed_companies_percent_of_gdp.csv` and 
+`mincpcap_cppp.csv`.
 
 ## Data and Variable Description
 
@@ -129,14 +131,17 @@ data |>
   geom_smooth(method = "lm") +
   theme_classic() +
   labs(
-    title = "Scatterplot of Income and Market Value",
+    title = "Figure 1: Income vs. Market Value",
     y = "",
     subtitle = "Market Value",
-    x = "Income"
+    x = "Income",
+     caption = "The linear regression line suggests a positive correlation, though the effect appears to be weak."
   )
 ```
 
-The scatterplot shows that the majority of the data points are concentrated below the market value of 500, indicating that most observed market values are relatively low. There are a few data points with significantly higher market values, forming a sparse distribution above 500, which are identified as outliers. The scatterplot includes a linear regression line with a positive slope, suggesting a slight positive correlation between Income and Market Value. As income increases, market value tends to increase linearly, though the effect is small.
+Figure 1 above, shows that the majority of the data points are concentrated below the market value of 500, indicating that most observed market values are relatively low. There are a few data points with significantly higher market values, forming a sparse distribution above 500, which are identified as outliers.
+
+It also includes a linear regression line with a positive slope, suggesting a slight positive correlation between Income and Market Value. As income increases, market value tends to increase linearly, though the effect is small.
 
 ### Visualize the relationship between the quantitative variables
 
@@ -153,17 +158,18 @@ data |>
   geom_jitter() +
   theme_classic() +
   labs(
-    title = "Scatterplot of Income and Market Value",
+    title = "Figure 2: Animated Scatterplot of Income and Market Value",
     y = "Market Value",
     x = "Income",
-    caption = "(color represents each country, helps to track trajectories of individual countries)"
-  ) +
+    caption = "(Colors represent individual countries.)" ) + 
   theme(legend.position = "none") +
   transition_time(year) +
   labs(subtitle = "Year: {frame_time}")
 ```
 
-The animated plot significantly enhances the understanding of the linear relationship between the two variables. As the animation progresses, it becomes evident that as the income of countries increases over the years, there is a general trend of increasing market value (measured as a \$ of GDP) for public companies. Furthermore, the color of each data point is mapped to specific countries, making it easier to track and follow the trajectories of individual countries. This is particularly useful in identifying patterns and deviations from the overall trend. For instance, the outlier points identified in the initial static scatterplot are now shown to originate from the same country. This revelation provides context to the outliers, demonstrating that they are not indicative of the general relationship observed in most other countries.
+The animated plot seen in Figure 2, significantly enhances the understanding of the linear relationship between the two variables. As the animation progresses, it becomes evident that as the income of countries increases over the years, there is a general trend of increasing market value (measured as a \$ of GDP) for public companies. Furthermore, the color of each data point is mapped to specific countries, making it easier to track and follow the trajectories of individual countries. 
+
+This is particularly useful in identifying patterns and deviations from the overall trend. For instance, the outlier points identified in the initial static scatterplot are now shown to originate from the same country. This revelation provides context to the outliers, demonstrating that they are not indicative of the general relationship observed in most other countries.
 
 ## Linear Regression Model (LRM)
 
@@ -187,6 +193,7 @@ data_means <- data |>
   )
 ```
 
+
 ```{r}
 data_means |>
   ggplot(aes(
@@ -197,20 +204,19 @@ data_means |>
   geom_smooth(method = "lm") +
   theme_minimal() +
   labs(
-    title = "Scatterplot of Mean Country Income and Mean Country Market Value",
+    title = "Figure 3: Mean Country Income and Mean Country Market Value",
     subtitle = "Market Value",
     y = "",
     x = "Income"
   )
 ```
+The scatterplot in Figure 3 reveals a positive correlation between mean country income and mean country market value. This means that, on average, as a country's income level increases, the average market value of its listed companies (measured as a percentage of GDP) also tends to increase. This trend is further confirmed by the blue regression line, which suggests a roughly linear relationship between the two variables.
 
 Now that the data has been summarized, we move on to fitting the linear model to our data. The table below shows the relationship between the two variables and will be used to construct the estimated regression model.
 
 ```{r}
 mv_lm <- lm(mean_market_value ~ mean_income, data = data_means)
 mv_lm_summary <- broom::tidy(mv_lm)
-
-
 
 knitr::kable(mv_lm_summary,
   col.names = gsub(
@@ -219,15 +225,14 @@ knitr::kable(mv_lm_summary,
     c("Term", "Coefficient Estimate", "Standard Error", "T-Statistic", "P-Value")
   ),
   align = "ccccc",
-  caption = "Summary of Linear Regression Model Coefficients",
-  digits = 3
-)
+  caption = "Table 1: Summary of Linear Regression Model Coefficients",
+  digits = 3)
 ```
 
 In general, an estimated regression model can be represented as:
 
 $$
-\text{Market Value (\% of GDP)} = \hat{\beta}_0 + \hat{\beta}_1 \times \text{Daily Income per Capita} + \epsilon  
+\text{Market Value (\% of GDP)} = \hat{\beta}_0 + \hat{\beta}_1 \times \text{Daily Income per Capita} + \epsilon
 $$
 
 Using the estimated coefficent values from the regression model, we can fill in the value of $\hat{\beta}_0$, the y-intercept, and the value of $\hat{\beta}_1$, the scaler which defines the relationship between the explainatory (income) and response variable (market value as a percent of GDP). The resulting equation is defined below:
@@ -278,7 +283,7 @@ kableExtra::kable(
     "Variance"
   ),
   digits = 3,
-  caption = "Table of Variances from the Linear Regression Model",
+  caption = "Table 2: Variances from the Linear Regression Model",
   booktabs = TRUE
 ) |>
   kable_styling(latex_options = "striped", full_width = FALSE)
@@ -298,17 +303,19 @@ The R-squared value suggests that only approximately 13% of the variation in mar
 
 # Simulation
 ## Visualizing Simulations from the Model
-#### Generating Predictions and Simulated Data
+### Generating Predictions and Simulated Data
 
 First, we used a simple linear regression model to generate predictions for the market value based on income. These predictions were then adjusted with random errors based on the residual standard error from the linear regression model to create simulated data. The resulting scatterplots, both for the observed and simulated data, were analyzed to understand the similarities and differences between them.
 
 ```{r simulated data}
 #| output: false
+# Generating Sim-ed Data
 pred <- predict(mv_lm)
 est_sigma <- sigma(mv_lm)
 ```
 
 ```{r}
+# Adding Random Error
 rand_error <- function(x, mean = 0, sd){
   x + rnorm(length(x), mean = mean, sd = sd)
 }
@@ -318,6 +325,7 @@ sim_response <- tibble(sim_mv = rand_error(pred,
 ```
 
 ```{r}
+# Generating market values and plotting
 data_means |>
   bind_cols(sim_response) |>
   ggplot(aes(
@@ -328,18 +336,18 @@ data_means |>
   geom_smooth(method = "lm") +
   theme_minimal() +
   labs(
-    title = "Scatterplot of Mean Country Income and Mean Country Market Value",
+    title = "Figure 4: Mean Country Income and Mean Country Market Value",
     subtitle = "Simulated Market Value",
     y = "",
     x = "Income"
   )
 ```
 
-#### Comparing Simulated Data to Observed Data
+### Comparing Simulated Data to Observed Data
 
-Both scatterplots show a positive trend line, confirming our hypothesis that higher income correlates with higher market value. In both plots, a significant number of data points are below a market value of 100, indicating that most countries have market values within this range. Additionally, both scatterplots contain outliers. This suggests variability in market values that the model attempts to capture.
+Both figures 3 & 4 show a positive trend line, confirming our hypothesis that higher income correlates with higher market value. In both plots, a significant number of data points are below a market value of 100, indicating that most countries have market values within this range. Additionally, as both plots contain outliers, this suggests variability in market values that the model attempts to capture.
 
-The observed data has a more skewed distribution with extreme outliers exceeding 500, while the simulated data points are more evenly spread around the regression line, displaying a more normal distribution. The observed data shows higher variability and greater spread in market values, indicating that factors other than income significantly influence market value. On the other hand, the simulated data shows a more constrained spread, emphasizing the model’s limitations in capturing the variability in market values.
+The observed data has a more skewed distribution with extreme outliers exceeding 500, while the simulated data points are more evenly spread around the regression line, displaying a more normal distribution. It also shows higher variability and greater spread in market values, indicating that factors other than income significantly influence market value. On the other hand, the simulated data shows a more constrained spread, emphasizing the model’s limitations in capturing the variability in market values.
 
 The comparison underscores that while the linear regression model depicts the general positive trend between income and market value, it underestimates the variability observed in the real-world data. The outliers in the observed data suggests that additional factors beyond income play a role in determining the market value of listed companies.
 
@@ -394,7 +402,7 @@ ggplot(data.frame(R_squared = r_squared_values),
                  color = "black",
                  alpha = 0.7) +
   
-  labs(title = "Distribution of R-squared Values from Predictive Checks",
+  labs(title = "Figure 5: Distribution of R-squared Values from Predictive Checks",
        x = "R-squared",
        y = "Frequency") +
   theme_minimal()
@@ -403,7 +411,7 @@ ggplot(data.frame(R_squared = r_squared_values),
 **Implications:**
 
 +  **Distribution of R-squared:**
-The histogram shows the distribution of R-squared values we would expect to see if our model were a good fit. The observed R-squared from our model on the real data (0.13) falls within the lower range of the simulated R-squared values.
+The histogram in Figure 5 shows the distribution of R-squared values we would expect to see if our model were a good fit. The observed R-squared from our model on the real data (0.13) falls within the lower range of the simulated R-squared values.
     
     
 +  **Model Adequacy:**
