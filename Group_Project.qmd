@@ -382,6 +382,7 @@ for (i in 1:n_sims) {
 }
 ```
 We regressed the observed market values against each of the 1,000 simulated datasets, calculating the R-squared value for each regression. The distribution of these R-squared values reveals the range of model fit we would expect to see if our model were accurate.
+
 ### Plotting R-squared Distribution
 Visualize distribution of the R-sq. values.
 ```{r}
